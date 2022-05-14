@@ -1,0 +1,15 @@
+[package]
+name = "sdp-rs"
+version = "0.0.1"
+authors = ["Filippos Vasilakis <vasilakisfil@gmail.com>"]
+edition = "2018"
+description = "SDP Rust library, parser & generator of the Session Description Protocol"
+repository = "https://github.com/televiska/sdp-rs"
+documentation = "https://docs.rs/sdp-rs"
+keywords = ["sdp", "8866", "session", "voip", "webrtc"]
+categories = ["parser-implementations", "parsing", "network-programming"]
+license-file = "LICENSE"
+
+
+[dependencies]
+nom = { version = "7.1.0", features = ["alloc"] }
