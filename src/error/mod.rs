@@ -13,7 +13,7 @@ pub enum Error {
 }
 
 impl Error {
-    pub fn tokenizer<'a, S, T>(tuple: (S, T)) -> Self
+    pub fn tokenizer<S, T>(tuple: (S, T)) -> Self
     where
         S: std::fmt::Display,
         T: std::fmt::Display,
