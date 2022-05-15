@@ -37,8 +37,8 @@ mod tests {
         let value = concat!("i=a value here #sdp #rocks\r\nsomething",);
 
         assert_eq!(
+            Tokenizer::<'i'>::tokenize(value),
             Ok(("something", "a value here #sdp #rocks".into())),
-            Tokenizer::<'i'>::tokenize(value)
         );
     }
 }

@@ -1,11 +1,14 @@
 mod error;
 pub mod tokenizers;
+pub mod types;
 
 pub use error::{Error, TokenizerError};
+pub use types::common::*;
 
 pub(crate) type TResult<'a, T> = Result<(&'a str, T), nom::Err<TokenizerError>>;
 pub(crate) type SResult<'a> = Result<(&'a str, &'a str), nom::Err<TokenizerError>>;
 
+/*
 pub struct SessionDescription {
     pub version: String,
     pub origin: String,
@@ -20,7 +23,7 @@ pub struct SessionDescription {
     pub key: Option<String>,
     pub attributes: Vec<String>,
     pub medias: Vec<String>,
-}
+}*/
 
 //TODO: add tests
 pub(crate) mod parser_utils {

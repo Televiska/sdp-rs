@@ -20,6 +20,13 @@ impl Error {
     {
         Self::TokenizeError(format!("failed to tokenize {}: {}", tuple.0, tuple.1))
     }
+
+    pub fn parser<T>(element: &'static str, part: T) -> Self
+    where
+        T: std::fmt::Display,
+    {
+        Self::TokenizeError(format!("failed to parse {}: {}", element, part))
+    }
 }
 
 impl From<TokenizerError> for Error {

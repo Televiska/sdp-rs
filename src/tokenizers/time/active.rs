@@ -33,8 +33,8 @@ mod tests {
         let time = concat!("t=3724394400 3724398000\r\nsomething");
 
         assert_eq!(
+            Tokenizer::tokenize(time),
             Ok(("something", ("3724394400", "3724398000").into())),
-            Tokenizer::tokenize(time)
         );
     }
 }

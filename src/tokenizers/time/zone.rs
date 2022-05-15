@@ -65,8 +65,8 @@ mod tests {
         let zone = concat!("3730928400 -1h\r\nsomething");
 
         assert_eq!(
+            TokenizerPart::tokenize(zone),
             Ok(("something", ("3730928400", "-1h").into())),
-            TokenizerPart::tokenize(zone)
         );
     }
 
@@ -75,8 +75,8 @@ mod tests {
         let zone = concat!("z=3730928400 -1h\r\nsomething");
 
         assert_eq!(
+            Tokenizer::tokenize(zone),
             Ok(("something", ("3730928400", "-1h").into())),
-            Tokenizer::tokenize(zone)
         );
     }
 
@@ -85,11 +85,11 @@ mod tests {
         let zone = concat!("z=3730928400 -1h 3749680800 0\r\nsomething");
 
         assert_eq!(
+            Tokenizer::tokenize(zone),
             Ok((
                 "something",
                 vec![("3730928400", "-1h"), ("3749680800", "0")].into()
             )),
-            Tokenizer::tokenize(zone)
         );
     }
 }

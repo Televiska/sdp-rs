@@ -80,6 +80,7 @@ mod tests {
         let media = concat!("m=audio 49170 RTP/AVP 0\r\nsomething");
 
         assert_eq!(
+            Tokenizer::tokenize(media),
             Ok((
                 "something",
                 Tokenizer {
@@ -89,7 +90,6 @@ mod tests {
                     fmt: "0",
                 }
             )),
-            Tokenizer::tokenize(media)
         );
     }
 
@@ -98,6 +98,7 @@ mod tests {
         let media = concat!("m=video 49170/2 RTP/AVP 31\r\nsomething");
 
         assert_eq!(
+            Tokenizer::tokenize(media),
             Ok((
                 "something",
                 Tokenizer {
@@ -107,7 +108,6 @@ mod tests {
                     fmt: "31",
                 }
             )),
-            Tokenizer::tokenize(media)
         );
     }
 }
