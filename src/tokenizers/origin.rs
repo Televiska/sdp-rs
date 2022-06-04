@@ -45,6 +45,7 @@ mod tests {
         let origin = concat!("o=jdoe 3724394400 3724394405 IN IP4 198.51.100.1\r\nsomething");
 
         assert_eq!(
+            Tokenizer::tokenize(origin),
             Ok((
                 "something",
                 Tokenizer {
@@ -56,7 +57,6 @@ mod tests {
                     unicast_address: "198.51.100.1"
                 }
             )),
-            Tokenizer::tokenize(origin)
         );
     }
 }

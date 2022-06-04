@@ -62,8 +62,18 @@ mod tests {
         let repeat = concat!("r=604800 3600 0 90000\r\nsomething");
 
         assert_eq!(
+            Tokenizer::tokenize(repeat),
             Ok(("something", ("604800", "3600", vec!["0", "90000"]).into())),
-            Tokenizer::tokenize(repeat)
+        );
+    }
+
+    #[test]
+    fn tokenizer3() {
+        let repeat = concat!("r=7d 1h 0 25h\r\nsomething");
+
+        assert_eq!(
+            Tokenizer::tokenize(repeat),
+            Ok(("something", ("7d", "1h", vec!["0", "25h"]).into())),
         );
     }
 }

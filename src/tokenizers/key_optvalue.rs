@@ -52,6 +52,7 @@ mod tests {
         let key_optvalue = concat!("a=recvonly\r\nsomething");
 
         assert_eq!(
+            Tokenizer::<'a'>::tokenize(key_optvalue),
             Ok((
                 "something",
                 Tokenizer {
@@ -59,7 +60,6 @@ mod tests {
                     value: None,
                 }
             )),
-            Tokenizer::<'a'>::tokenize(key_optvalue)
         );
     }
 
@@ -68,6 +68,7 @@ mod tests {
         let key_optvalue = concat!("a=rtpmap:99 h263-1998/90000\r\nsomething");
 
         assert_eq!(
+            Tokenizer::<'a'>::tokenize(key_optvalue),
             Ok((
                 "something",
                 Tokenizer {
@@ -75,7 +76,6 @@ mod tests {
                     value: Some("99 h263-1998/90000"),
                 }
             )),
-            Tokenizer::<'a'>::tokenize(key_optvalue)
         );
     }
 }

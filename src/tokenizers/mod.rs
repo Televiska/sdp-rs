@@ -2,18 +2,9 @@ pub mod key_optvalue;
 pub mod key_value;
 pub mod value;
 
-pub mod attribute;
-pub mod bandwidth;
 pub mod connection;
-pub mod email;
-pub mod encryption_key;
 pub mod media;
 pub mod origin;
-pub mod phone;
-pub mod repeat;
-pub mod session_information;
-pub mod session_name;
 pub mod time;
-pub mod uri;
-pub mod version;
-pub mod zone;
+
+pub mod attributes;

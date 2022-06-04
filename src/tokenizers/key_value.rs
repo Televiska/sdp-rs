@@ -39,6 +39,7 @@ mod tests {
         let key_value = concat!("b=CT:128\r\nsomething");
 
         assert_eq!(
+            Tokenizer::<'b'>::tokenize(key_value),
             Ok((
                 "something",
                 Tokenizer {
@@ -46,7 +47,6 @@ mod tests {
                     value: "128",
                 }
             )),
-            Tokenizer::<'b'>::tokenize(key_value)
         );
     }
 }
