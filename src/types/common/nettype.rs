@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub enum Nettype {
     In,
     Other(String),

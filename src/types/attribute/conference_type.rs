@@ -1,6 +1,6 @@
 use std::convert::TryFrom;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone, Copy)]
 pub enum ConferenceType {
     Broadcast,
     Meeting,

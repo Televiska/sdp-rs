@@ -1,16 +1,18 @@
-use crate::{tokenizers::time::zone::TokenizerPart, types::time::TypedTime, Error};
+use crate::{types::time::TypedTime, Error};
 use std::convert::{TryFrom, TryInto};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub use crate::tokenizers::time::zone_part::Tokenizer;
+
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone, Copy)]
 pub struct ZonePart {
     pub adjustment_time: u64,
     pub offset: TypedTime,
 }
 
-impl<'a> TryFrom<TokenizerPart<'a>> for ZonePart {
+impl<'a> TryFrom<Tokenizer<'a>> for ZonePart {
     type Error = Error;
 
-    fn try_from(tokenizer: TokenizerPart<'a>) -> Result<Self, Self::Error> {
+    fn try_from(tokenizer: Tokenizer<'a>) -> Result<Self, Self::Error> {
         Ok(Self {
             adjustment_time: tokenizer.adjustment.parse()?,
             offset: tokenizer.offset.try_into()?,
@@ -31,7 +33,7 @@ mod tests {
 
     #[test]
     fn from_tokenizer1() {
-        let tokenizer: TokenizerPart = ("604800", "3600").into();
+        let tokenizer: Tokenizer = ("604800", "3600").into();
 
         assert_eq!(
             ZonePart::try_from(tokenizer),
@@ -44,7 +46,7 @@ mod tests {
 
     #[test]
     fn from_tokenizer2() {
-        let tokenizer: TokenizerPart = ("604800", "-3h").into();
+        let tokenizer: Tokenizer = ("604800", "-3h").into();
 
         assert_eq!(
             ZonePart::try_from(tokenizer),

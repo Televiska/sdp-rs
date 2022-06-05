@@ -1,7 +1,9 @@
-use crate::{tokenizers::key_value::Tokenizer, types::common::Bwtype, Error};
+use crate::{types::common::Bwtype, Error};
 use std::convert::TryFrom;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+pub use crate::tokenizers::key_value::Tokenizer;
+
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Bandwidth {
     pub bwtype: Bwtype,
     pub bandwidth: u32,

@@ -2,7 +2,7 @@ use crate::Error;
 use chrono::Duration;
 use std::convert::TryFrom;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone, Copy)]
 pub enum TypedTime {
     Seconds(Duration),
     Minutes(Duration),

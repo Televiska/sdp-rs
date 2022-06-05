@@ -1,7 +1,9 @@
-use crate::{tokenizers::value::Tokenizer, Error};
+use crate::Error;
 use std::convert::TryFrom;
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+pub use crate::tokenizers::value::Tokenizer;
+
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone, Copy)]
 pub enum Version {
     V0,
 }
