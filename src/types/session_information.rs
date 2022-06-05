@@ -1,6 +1,6 @@
-use crate::tokenizers::value::Tokenizer;
+pub use crate::tokenizers::value::Tokenizer;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct SessionInformation(String);
 
 impl SessionInformation {

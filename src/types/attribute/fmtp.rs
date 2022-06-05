@@ -1,9 +1,8 @@
-use crate::{
-    tokenizers::attributes::{fmtp::Tokenizer, name_optvalue::Tokenizer as ParamsTokenizer},
-    Error,
-};
+use crate::{tokenizers::attributes::name_optvalue::Tokenizer as ParamsTokenizer, Error};
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+pub use crate::tokenizers::attributes::fmtp::Tokenizer;
+
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Fmtp {
     pub fmt: String,
     pub params: String,

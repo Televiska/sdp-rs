@@ -1,10 +1,12 @@
 use crate::{
     types::common::{Addrtype, Nettype},
-    {tokenizers::origin::Tokenizer, Error},
+    Error,
 };
 use std::{convert::TryFrom, net::IpAddr};
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+pub use crate::tokenizers::origin::Tokenizer;
+
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Origin {
     pub username: String,
     pub sess_id: String,

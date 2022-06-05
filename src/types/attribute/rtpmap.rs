@@ -1,7 +1,7 @@
-use crate::tokenizers::attributes::rtpmap::Tokenizer;
+pub use crate::tokenizers::attributes::rtpmap::Tokenizer;
 use std::convert::TryFrom;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Rtpmap {
     pub payload_type: u32,
     pub encoding_name: String,
@@ -35,12 +35,12 @@ impl std::fmt::Display for Rtpmap {
         match self.encoding_params {
             Some(encoding_params) => write!(
                 f,
-                "{} {} {} {}",
+                "{} {}/{} {}",
                 self.payload_type, self.encoding_name, self.clock_rate, encoding_params
             ),
             None => write!(
                 f,
-                "{} {} {}",
+                "{} {}/{}",
                 self.payload_type, self.encoding_name, self.clock_rate
             ),
         }
@@ -101,7 +101,7 @@ mod tests {
                 encoding_params: Some(2),
             }
             .to_string(),
-            "98 L16 16000 2"
+            "98 L16/16000 2"
         );
     }
 }

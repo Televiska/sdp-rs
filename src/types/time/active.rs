@@ -1,8 +1,9 @@
-use crate::{tokenizers::time::active::Tokenizer, Error};
+use crate::Error;
 use std::convert::TryFrom;
 
-//TODO: convert to Chrono<Utc> ?
-#[derive(Debug, PartialEq, Eq, Clone)]
+pub use crate::tokenizers::time::active::Tokenizer;
+
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone, Copy)]
 pub struct Active {
     pub start: u64,
     pub stop: u64,
@@ -21,7 +22,7 @@ impl<'a> TryFrom<Tokenizer<'a>> for Active {
 
 impl std::fmt::Display for Active {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} {}", self.start, self.stop)
+        write!(f, "t={} {}", self.start, self.stop)
     }
 }
 
@@ -49,6 +50,6 @@ mod tests {
             stop: 3724398000,
         };
 
-        assert_eq!(active.to_string(), "3724394400 3724398000");
+        assert_eq!(active.to_string(), "t=3724394400 3724398000");
     }
 }

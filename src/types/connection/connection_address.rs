@@ -1,7 +1,7 @@
 use crate::{tokenizers::connection::connection_address::Tokenizer, Error};
 use std::{convert::TryFrom, net::IpAddr};
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone, Copy)]
 pub struct ConnectionAddress {
     pub base: IpAddr,
     pub ttl: Option<u32>,
@@ -17,6 +17,16 @@ impl<'a> TryFrom<Tokenizer<'a>> for ConnectionAddress {
             ttl: tokenizer.ttl.map(|ttl| ttl.parse()).transpose()?,
             numaddr: tokenizer.numaddr.map(|ttl| ttl.parse()).transpose()?,
         })
+    }
+}
+
+impl<'a> From<IpAddr> for ConnectionAddress {
+    fn from(base: IpAddr) -> Self {
+        Self {
+            base,
+            ttl: None,
+            numaddr: None,
+        }
     }
 }
 

@@ -5,7 +5,7 @@ pub use zone_part::ZonePart;
 use crate::{tokenizers::time::zone::Tokenizer, Error};
 use std::convert::{TryFrom, TryInto};
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Zone {
     pub parts: Vec<ZonePart>,
 }

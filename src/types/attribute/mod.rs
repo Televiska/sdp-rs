@@ -8,10 +8,10 @@ pub use fmtp::Fmtp;
 pub use orientation::Orientation;
 pub use rtpmap::Rtpmap;
 
-use crate::tokenizers::key_optvalue::Tokenizer;
+pub use crate::tokenizers::key_optvalue::Tokenizer;
 use std::convert::TryFrom;
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub enum Attribute {
     Cat(String),
     Keywds(String),
@@ -34,8 +34,8 @@ pub enum Attribute {
 }
 
 //TODO: add warning log on errors behind a feature flag
-impl<'a> From<Tokenizer<'a, 'k'>> for Attribute {
-    fn from(tokenizer: Tokenizer<'a, 'k'>) -> Self {
+impl<'a> From<Tokenizer<'a, 'a'>> for Attribute {
+    fn from(tokenizer: Tokenizer<'a, 'a'>) -> Self {
         match (tokenizer.key, tokenizer.value) {
             (key, Some(value)) if key.eq("cat") => Self::Cat(value.into()),
             (key, Some(value)) if key.eq("keywds") => Self::Keywds(value.into()),
@@ -112,7 +112,7 @@ mod tests {
 
     #[test]
     fn from_tokenizer1() {
-        let tokenizer: Tokenizer<'k'> = ("key", Some("something")).into();
+        let tokenizer: Tokenizer<'a'> = ("key", Some("something")).into();
 
         assert_eq!(
             Attribute::from(tokenizer),
@@ -122,7 +122,7 @@ mod tests {
 
     #[test]
     fn from_tokenizer2() {
-        let tokenizer: Tokenizer<'k'> = ("orient", None).into();
+        let tokenizer: Tokenizer<'a'> = ("orient", None).into();
 
         assert_eq!(
             Attribute::from(tokenizer),
@@ -132,7 +132,7 @@ mod tests {
 
     #[test]
     fn from_tokenizer3() {
-        let tokenizer: Tokenizer<'k'> = ("orient", Some("Portrait")).into();
+        let tokenizer: Tokenizer<'a'> = ("orient", Some("Portrait")).into();
 
         assert_eq!(
             Attribute::from(tokenizer),
@@ -142,7 +142,7 @@ mod tests {
 
     #[test]
     fn from_tokenizer4() {
-        let tokenizer: Tokenizer<'k'> = ("orient", Some("portrait")).into();
+        let tokenizer: Tokenizer<'a'> = ("orient", Some("portrait")).into();
 
         assert_eq!(
             Attribute::from(tokenizer),

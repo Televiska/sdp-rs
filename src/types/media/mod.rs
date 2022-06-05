@@ -1,13 +1,14 @@
 mod media_type;
 mod proto_type;
 
+pub use crate::tokenizers::media::Tokenizer;
 pub use media_type::MediaType;
 pub use proto_type::ProtoType;
 
-use crate::{tokenizers::media::Tokenizer, Error};
+use crate::Error;
 use std::convert::TryFrom;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Media {
     pub media: MediaType,
     pub port: u16,

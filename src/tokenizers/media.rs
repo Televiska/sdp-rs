@@ -71,6 +71,15 @@ impl<'a> From<(&'a str, &'a str)> for PortTokenizer<'a> {
     }
 }
 
+impl<'a> From<&'a str> for PortTokenizer<'a> {
+    fn from(port: &'a str) -> Self {
+        Self {
+            port,
+            num_of_ports: None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,10 +1,9 @@
 mod key_method;
 
+pub use crate::tokenizers::key_optvalue::Tokenizer;
 pub use key_method::KeyMethod;
 
-use crate::tokenizers::key_optvalue::Tokenizer;
-
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Key {
     pub method: KeyMethod,
     pub encryption_key: String,

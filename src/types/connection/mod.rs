@@ -1,14 +1,15 @@
 mod connection_address;
 
+pub use crate::tokenizers::connection::Tokenizer;
 pub use connection_address::ConnectionAddress;
 
 use crate::{
     types::common::{Addrtype, Nettype},
-    {tokenizers::connection::Tokenizer, Error},
+    Error,
 };
 use std::convert::{TryFrom, TryInto};
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Connection {
     pub nettype: Nettype,
     pub addrtype: Addrtype,
@@ -31,7 +32,7 @@ impl std::fmt::Display for Connection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{} {} {}",
+            "c={} {} {}",
             self.nettype, self.addrtype, self.connection_address
         )
     }
@@ -89,6 +90,6 @@ mod tests {
             },
         };
 
-        assert_eq!(connection.to_string(), "IN Ip4 233.252.0.1/127/2");
+        assert_eq!(connection.to_string(), "c=IN Ip4 233.252.0.1/127/2");
     }
 }

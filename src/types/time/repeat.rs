@@ -1,9 +1,11 @@
-use crate::{tokenizers::time::repeat::Tokenizer, Error};
+use crate::Error;
 use std::convert::{TryFrom, TryInto};
+
+pub use crate::tokenizers::time::repeat::Tokenizer;
 
 use super::TypedTime;
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Repeat {
     pub interval: TypedTime,
     pub duration: TypedTime,
@@ -30,7 +32,7 @@ impl std::fmt::Display for Repeat {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{} {} {}",
+            "r={} {} {}",
             self.interval,
             self.duration,
             self.offsets
@@ -92,7 +94,7 @@ mod tests {
             ],
         };
 
-        assert_eq!(repeat.to_string(), "7d 1h 0 25h");
+        assert_eq!(repeat.to_string(), "r=7d 1h 0 25h");
     }
 
     #[test]
@@ -106,6 +108,6 @@ mod tests {
             ],
         };
 
-        assert_eq!(repeat.to_string(), "604800 3600 0 90000");
+        assert_eq!(repeat.to_string(), "r=604800 3600 0 90000");
     }
 }

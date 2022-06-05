@@ -14,3 +14,4 @@ license-file = "LICENSE"
 [dependencies]
 nom = { version = "7.1.0", features = ["alloc"] }
 chrono = { version = "0.4.19" }
+vec1 = "1.8.0"

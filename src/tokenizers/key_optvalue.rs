@@ -43,6 +43,12 @@ impl<'a, const C: char> From<(&'a str, &'a str)> for Tokenizer<'a, C> {
     }
 }
 
+impl<'a, const C: char> From<&'a str> for Tokenizer<'a, C> {
+    fn from(key: &'a str) -> Self {
+        Self { key, value: None }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

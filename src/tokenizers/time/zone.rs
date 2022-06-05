@@ -1,16 +1,19 @@
+use super::zone_part;
 use crate::TResult;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Tokenizer<'a> {
-    pub parts: Vec<TokenizerPart<'a>>,
+    pub parts: Vec<zone_part::Tokenizer<'a>>,
 }
 
 impl<'a> Tokenizer<'a> {
     pub fn tokenize(part: &'a str) -> TResult<'a, Self> {
+        use crate::parser_utils::*;
         use nom::{bytes::complete::tag, multi::many1};
 
         let (rem, _) = tag("z=")(part)?;
-        let (rem, parts) = many1(TokenizerPart::tokenize)(rem)?;
+        let (rem, line) = until_newline(rem)?;
+        let (_, parts) = many1(zone_part::Tokenizer::tokenize)(line)?;
 
         Ok((rem, Self { parts }))
     }
@@ -24,7 +27,7 @@ impl<'a> From<(&'a str, &'a str)> for Tokenizer<'a> {
     }
 }
 
-impl<'a, T: Into<TokenizerPart<'a>>> From<Vec<T>> for Tokenizer<'a> {
+impl<'a, T: Into<zone_part::Tokenizer<'a>>> From<Vec<T>> for Tokenizer<'a> {
     fn from(parts: Vec<T>) -> Self {
         Self {
             parts: parts.into_iter().map(Into::into).collect(),
@@ -32,43 +35,9 @@ impl<'a, T: Into<TokenizerPart<'a>>> From<Vec<T>> for Tokenizer<'a> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
-pub struct TokenizerPart<'a> {
-    pub adjustment: &'a str,
-    pub offset: &'a str,
-}
-
-impl<'a> TokenizerPart<'a> {
-    pub fn tokenize(part: &'a str) -> TResult<'a, Self> {
-        use crate::parser_utils::*;
-        use nom::branch::alt;
-
-        let (rem, adjustment) = until_space(part)?;
-        let (rem, offset) = alt((until_space, until_newline))(rem)?;
-
-        Ok((rem, Self { adjustment, offset }))
-    }
-}
-
-impl<'a> From<(&'a str, &'a str)> for TokenizerPart<'a> {
-    fn from((adjustment, offset): (&'a str, &'a str)) -> Self {
-        Self { adjustment, offset }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn tokenizer_part1() {
-        let zone = concat!("3730928400 -1h\r\nsomething");
-
-        assert_eq!(
-            TokenizerPart::tokenize(zone),
-            Ok(("something", ("3730928400", "-1h").into())),
-        );
-    }
 
     #[test]
     fn tokenizer1() {
@@ -89,6 +58,19 @@ mod tests {
             Ok((
                 "something",
                 vec![("3730928400", "-1h"), ("3749680800", "0")].into()
+            )),
+        );
+    }
+
+    #[test]
+    fn tokenizer3() {
+        let zone = concat!("z=3730928400 -1h 3749680800 0h\r\nsomething");
+
+        assert_eq!(
+            Tokenizer::tokenize(zone),
+            Ok((
+                "something",
+                vec![("3730928400", "-1h"), ("3749680800", "0h")].into()
             )),
         );
     }
