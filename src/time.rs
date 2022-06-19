@@ -1,8 +1,16 @@
-use crate::{Active, Error, Repeat, Zone};
+use crate::{
+    lines::{Active, Repeat, Zone},
+    Error,
+};
 use std::convert::{TryFrom, TryInto};
 
+/// The time high level type tokenizer. It tokenizes all lines related to time (`a=`, `r=`, `z=`)
+/// at once.
+/// This is low level stuff and you shouldn't interact directly
+/// with it, unless you know what you are doing.
 pub use crate::tokenizers::time::Tokenizer;
 
+/// The time high level type. This type holds all types related to the time in SDP.
 #[derive(Debug, PartialEq, Eq, Ord, PartialOrd, Clone)]
 pub struct Time {
     pub active: Active,
@@ -43,6 +51,7 @@ impl std::fmt::Display for Time {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::lines::{common::TypedTime, zone::ZonePart};
     use chrono::Duration;
 
     #[test]
@@ -59,34 +68,34 @@ mod tests {
         assert_eq!(
             Time::try_from(tokenizer),
             Ok(Time {
-                active: crate::Active {
+                active: Active {
                     start: 3724394400,
                     stop: 3724398000,
                 },
                 repeat: vec![
                     Repeat {
-                        interval: crate::TypedTime::None(Duration::seconds(604800)),
-                        duration: crate::TypedTime::None(Duration::seconds(3600)),
-                        offsets: vec![crate::TypedTime::None(Duration::seconds(0)),],
+                        interval: TypedTime::None(Duration::seconds(604800)),
+                        duration: TypedTime::None(Duration::seconds(3600)),
+                        offsets: vec![TypedTime::None(Duration::seconds(0)),],
                     },
                     Repeat {
-                        interval: crate::TypedTime::Days(Duration::seconds(604800)),
-                        duration: crate::TypedTime::Hours(Duration::seconds(3600)),
+                        interval: TypedTime::Days(Duration::seconds(604800)),
+                        duration: TypedTime::Hours(Duration::seconds(3600)),
                         offsets: vec![
-                            crate::TypedTime::None(Duration::seconds(0)),
-                            crate::TypedTime::Hours(Duration::seconds(90000)),
+                            TypedTime::None(Duration::seconds(0)),
+                            TypedTime::Hours(Duration::seconds(90000)),
                         ],
                     }
                 ],
                 zone: Some(Zone {
                     parts: vec![
-                        crate::ZonePart {
+                        ZonePart {
                             adjustment_time: 3730928400,
-                            offset: crate::TypedTime::Hours(Duration::hours(-1)),
+                            offset: TypedTime::Hours(Duration::hours(-1)),
                         },
-                        crate::ZonePart {
+                        ZonePart {
                             adjustment_time: 3749680800,
-                            offset: crate::TypedTime::None(Duration::hours(0)),
+                            offset: TypedTime::None(Duration::hours(0)),
                         },
                     ],
                 })
@@ -105,7 +114,7 @@ mod tests {
         assert_eq!(
             Time::try_from(tokenizer),
             Ok(Time {
-                active: crate::Active {
+                active: Active {
                     start: 3724394400,
                     stop: 3724398000,
                 },
@@ -118,34 +127,34 @@ mod tests {
     #[test]
     fn display1() {
         let time = Time {
-            active: crate::Active {
+            active: Active {
                 start: 3724394400,
                 stop: 3724398000,
             },
             repeat: vec![
                 Repeat {
-                    interval: crate::TypedTime::None(Duration::seconds(604800)),
-                    duration: crate::TypedTime::None(Duration::seconds(3600)),
-                    offsets: vec![crate::TypedTime::None(Duration::seconds(0))],
+                    interval: TypedTime::None(Duration::seconds(604800)),
+                    duration: TypedTime::None(Duration::seconds(3600)),
+                    offsets: vec![TypedTime::None(Duration::seconds(0))],
                 },
                 Repeat {
-                    interval: crate::TypedTime::Days(Duration::seconds(604800)),
-                    duration: crate::TypedTime::Hours(Duration::seconds(3600)),
+                    interval: TypedTime::Days(Duration::seconds(604800)),
+                    duration: TypedTime::Hours(Duration::seconds(3600)),
                     offsets: vec![
-                        crate::TypedTime::None(Duration::seconds(0)),
-                        crate::TypedTime::Hours(Duration::seconds(90000)),
+                        TypedTime::None(Duration::seconds(0)),
+                        TypedTime::Hours(Duration::seconds(90000)),
                     ],
                 },
             ],
             zone: Some(Zone {
                 parts: vec![
-                    crate::ZonePart {
+                    ZonePart {
                         adjustment_time: 3730928400,
-                        offset: crate::TypedTime::Hours(Duration::hours(-1)),
+                        offset: TypedTime::Hours(Duration::hours(-1)),
                     },
-                    crate::ZonePart {
+                    ZonePart {
                         adjustment_time: 3749680800,
-                        offset: crate::TypedTime::None(Duration::hours(0)),
+                        offset: TypedTime::None(Duration::hours(0)),
                     },
                 ],
             }),
@@ -165,7 +174,7 @@ mod tests {
     #[test]
     fn display2() {
         let time = Time {
-            active: crate::Active {
+            active: Active {
                 start: 3724394400,
                 stop: 3724398000,
             },

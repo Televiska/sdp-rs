@@ -1,16 +1,22 @@
-use crate::{Attribute, Bandwidth, Connection, Error, Key, Media, SessionInformation};
+use crate::{lines, Error};
 use std::convert::{TryFrom, TryInto};
 
+/// The Media description high level type tokenizer. It tokenizes all lines related to a Media
+/// description.
+/// This is low level stuff and you shouldn't interact directly
+/// with it, unless you know what you are doing.
 pub use crate::tokenizers::media_description::Tokenizer;
 
+/// The Media description high level type. This type holds all types related to a complete Media
+/// description (info, connections, bandwidths, attributes etc).
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct MediaDescription {
-    pub media: Media,
-    pub info: Option<SessionInformation>,
-    pub connections: Vec<Connection>,
-    pub bandwidths: Vec<Bandwidth>,
-    pub key: Option<Key>,
-    pub attributes: Vec<Attribute>,
+    pub media: lines::Media,
+    pub info: Option<lines::SessionInformation>,
+    pub connections: Vec<lines::Connection>,
+    pub bandwidths: Vec<lines::Bandwidth>,
+    pub key: Option<lines::Key>,
+    pub attributes: Vec<lines::Attribute>,
 }
 
 impl<'a> TryFrom<Tokenizer<'a>> for MediaDescription {
@@ -71,7 +77,7 @@ mod tests {
     #[test]
     fn from_tokenizer1() {
         let tokenizer = Tokenizer {
-            media: crate::media::Tokenizer {
+            media: lines::media::Tokenizer {
                 media: "audio",
                 port: "49170".into(),
                 proto: "RTP/AVP",
@@ -79,12 +85,12 @@ mod tests {
             },
             info: Some("audio media".into()),
             connections: vec![
-                crate::connection::Tokenizer {
+                lines::connection::Tokenizer {
                     nettype: "IN",
                     addrtype: "IP4",
                     connection_address: "10.47.16.5".into(),
                 },
-                crate::connection::Tokenizer {
+                lines::connection::Tokenizer {
                     nettype: "IN",
                     addrtype: "IP4",
                     connection_address: "10.47.16.6".into(),
@@ -101,48 +107,48 @@ mod tests {
         assert_eq!(
             MediaDescription::try_from(tokenizer),
             Ok(MediaDescription {
-                media: Media {
-                    media: crate::MediaType::Audio,
+                media: lines::Media {
+                    media: lines::media::MediaType::Audio,
                     port: 49170,
                     num_of_ports: None,
-                    proto: crate::ProtoType::RtpAvp,
+                    proto: lines::media::ProtoType::RtpAvp,
                     fmt: "0".into()
                 },
-                info: Some(SessionInformation::new("audio media".into())),
+                info: Some(lines::SessionInformation::new("audio media".into())),
                 connections: vec![
-                    Connection {
-                        nettype: crate::Nettype::In,
-                        addrtype: crate::Addrtype::Ip4,
+                    lines::Connection {
+                        nettype: lines::common::Nettype::In,
+                        addrtype: lines::common::Addrtype::Ip4,
                         connection_address: "10.47.16.5".parse::<IpAddr>().unwrap().into()
                     },
-                    Connection {
-                        nettype: crate::Nettype::In,
-                        addrtype: crate::Addrtype::Ip4,
+                    lines::Connection {
+                        nettype: lines::common::Nettype::In,
+                        addrtype: lines::common::Addrtype::Ip4,
                         connection_address: "10.47.16.6".parse::<IpAddr>().unwrap().into()
                     },
                 ],
                 bandwidths: vec![
-                    crate::Bandwidth {
-                        bwtype: crate::Bwtype::Ct,
+                    lines::Bandwidth {
+                        bwtype: lines::bandwidth::Bwtype::Ct,
                         bandwidth: 1000
                     },
-                    crate::Bandwidth {
-                        bwtype: crate::Bwtype::As,
+                    lines::Bandwidth {
+                        bwtype: lines::bandwidth::Bwtype::As,
                         bandwidth: 551
                     }
                 ],
-                key: Some(Key {
-                    method: crate::KeyMethod::Prompt,
+                key: Some(lines::Key {
+                    method: lines::key::KeyMethod::Prompt,
                     encryption_key: Default::default()
                 }),
                 attributes: vec![
-                    crate::Attribute::Rtpmap(crate::Rtpmap {
+                    lines::Attribute::Rtpmap(lines::attribute::Rtpmap {
                         payload_type: 99,
                         encoding_name: "h232-199".into(),
                         clock_rate: 90000,
                         encoding_params: None
                     }),
-                    crate::Attribute::Rtpmap(crate::Rtpmap {
+                    lines::Attribute::Rtpmap(lines::attribute::Rtpmap {
                         payload_type: 90,
                         encoding_name: "h263-1998".into(),
                         clock_rate: 90000,
@@ -156,48 +162,48 @@ mod tests {
     #[test]
     fn display1() {
         let media_description = MediaDescription {
-            media: Media {
-                media: crate::MediaType::Audio,
+            media: lines::Media {
+                media: lines::media::MediaType::Audio,
                 port: 49170,
                 num_of_ports: None,
-                proto: crate::ProtoType::RtpAvp,
+                proto: lines::media::ProtoType::RtpAvp,
                 fmt: "0".into(),
             },
-            info: Some(SessionInformation::new("audio media".into())),
+            info: Some(lines::SessionInformation::new("audio media".into())),
             connections: vec![
-                Connection {
-                    nettype: crate::Nettype::In,
-                    addrtype: crate::Addrtype::Ip4,
+                lines::Connection {
+                    nettype: lines::common::Nettype::In,
+                    addrtype: lines::common::Addrtype::Ip4,
                     connection_address: "10.47.16.5".parse::<IpAddr>().unwrap().into(),
                 },
-                Connection {
-                    nettype: crate::Nettype::In,
-                    addrtype: crate::Addrtype::Ip4,
+                lines::Connection {
+                    nettype: lines::common::Nettype::In,
+                    addrtype: lines::common::Addrtype::Ip4,
                     connection_address: "10.47.16.6".parse::<IpAddr>().unwrap().into(),
                 },
             ],
             bandwidths: vec![
-                crate::Bandwidth {
-                    bwtype: crate::Bwtype::Ct,
+                lines::Bandwidth {
+                    bwtype: lines::bandwidth::Bwtype::Ct,
                     bandwidth: 1000,
                 },
-                crate::Bandwidth {
-                    bwtype: crate::Bwtype::As,
+                lines::Bandwidth {
+                    bwtype: lines::bandwidth::Bwtype::As,
                     bandwidth: 551,
                 },
             ],
-            key: Some(Key {
-                method: crate::KeyMethod::Prompt,
+            key: Some(lines::Key {
+                method: lines::key::KeyMethod::Prompt,
                 encryption_key: Default::default(),
             }),
             attributes: vec![
-                crate::Attribute::Rtpmap(crate::Rtpmap {
+                lines::Attribute::Rtpmap(lines::attribute::Rtpmap {
                     payload_type: 99,
                     encoding_name: "h232-199".into(),
                     clock_rate: 90000,
                     encoding_params: None,
                 }),
-                crate::Attribute::Rtpmap(crate::Rtpmap {
+                lines::Attribute::Rtpmap(lines::attribute::Rtpmap {
                     payload_type: 90,
                     encoding_name: "h263-1998".into(),
                     clock_rate: 90000,
@@ -225,11 +231,11 @@ mod tests {
     #[test]
     fn display2() {
         let media_description = MediaDescription {
-            media: Media {
-                media: crate::MediaType::Audio,
+            media: lines::Media {
+                media: lines::media::MediaType::Audio,
                 port: 49170,
                 num_of_ports: None,
-                proto: crate::ProtoType::RtpAvp,
+                proto: lines::media::ProtoType::RtpAvp,
                 fmt: "0".into(),
             },
             info: None,

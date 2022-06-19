@@ -1,24 +1,27 @@
-use crate::*;
+use crate::{lines, Error};
 use std::convert::{TryFrom, TryInto};
 use vec1::Vec1;
 
+/// The Session description high level type tokenizer. It tokenizes an SDP message. This is low
+/// level stuff and you shouldn't interact directly with it, unless you know what you are doing.
 pub use crate::tokenizers::session_description::Tokenizer;
 
+/// The Session description. This is the main `sdp-rs` type that describes the SDP message.
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
 pub struct SessionDescription {
-    pub version: Version,
-    pub origin: Origin,
-    pub session_name: SessionName,
-    pub session_info: Option<SessionInformation>,
-    pub uri: Option<Uri>,
-    pub emails: Vec<Email>,
-    pub phones: Vec<Phone>,
-    pub connection: Option<Connection>,
-    pub bandwidths: Vec<Bandwidth>,
-    pub times: Vec1<Time>,
-    pub key: Option<Key>,
-    pub attributes: Vec<Attribute>,
-    pub media_descriptions: Vec<MediaDescription>,
+    pub version: lines::Version,
+    pub origin: lines::Origin,
+    pub session_name: lines::SessionName,
+    pub session_info: Option<lines::SessionInformation>,
+    pub uri: Option<lines::Uri>,
+    pub emails: Vec<lines::Email>,
+    pub phones: Vec<lines::Phone>,
+    pub connection: Option<lines::Connection>,
+    pub bandwidths: Vec<lines::Bandwidth>,
+    pub times: Vec1<crate::Time>,
+    pub key: Option<lines::Key>,
+    pub attributes: Vec<lines::Attribute>,
+    pub media_descriptions: Vec<crate::MediaDescription>,
 }
 
 impl TryFrom<String> for SessionDescription {
@@ -164,7 +167,7 @@ mod tests {
                 connection_address: ("10.47.16.5").into(),
             }),
             bandwidths: vec![("CT", "1024").into()],
-            times: vec1![time::Tokenizer {
+            times: vec1![crate::time::Tokenizer {
                 active: ("2854678930", "2854679000").into(),
                 repeat: vec![("604800", "3600", vec!["0", "90000"]).into(),],
                 zone: Some(vec![("2882844526", "-1h"), ("2898848070", "0h")].into())
@@ -200,76 +203,76 @@ mod tests {
             }],
         };
 
-        let expected_times = vec1![Time {
-            active: crate::Active {
+        let expected_times = vec1![crate::Time {
+            active: lines::Active {
                 start: 2854678930,
                 stop: 2854679000,
             },
-            repeat: vec![Repeat {
-                interval: crate::TypedTime::None(Duration::seconds(604800)),
-                duration: crate::TypedTime::None(Duration::seconds(3600)),
+            repeat: vec![lines::Repeat {
+                interval: lines::common::TypedTime::None(Duration::seconds(604800)),
+                duration: lines::common::TypedTime::None(Duration::seconds(3600)),
                 offsets: vec![
-                    crate::TypedTime::None(Duration::seconds(0)),
-                    crate::TypedTime::None(Duration::seconds(90000))
+                    lines::common::TypedTime::None(Duration::seconds(0)),
+                    lines::common::TypedTime::None(Duration::seconds(90000))
                 ],
             },],
-            zone: Some(Zone {
+            zone: Some(lines::Zone {
                 parts: vec![
-                    crate::ZonePart {
+                    lines::zone::ZonePart {
                         adjustment_time: 2882844526,
-                        offset: crate::TypedTime::Hours(Duration::hours(-1)),
+                        offset: lines::common::TypedTime::Hours(Duration::hours(-1)),
                     },
-                    crate::ZonePart {
+                    lines::zone::ZonePart {
                         adjustment_time: 2898848070,
-                        offset: crate::TypedTime::Hours(Duration::hours(0)),
+                        offset: lines::common::TypedTime::Hours(Duration::hours(0)),
                     },
                 ],
             })
         }];
 
-        let expected_media_description = MediaDescription {
-            media: Media {
-                media: crate::MediaType::Audio,
+        let expected_media_description = crate::MediaDescription {
+            media: lines::Media {
+                media: lines::media::MediaType::Audio,
                 port: 49170,
                 num_of_ports: None,
-                proto: crate::ProtoType::RtpAvp,
+                proto: lines::media::ProtoType::RtpAvp,
                 fmt: "0".into(),
             },
-            info: Some(SessionInformation::new("audio media".into())),
+            info: Some(lines::SessionInformation::new("audio media".into())),
             connections: vec![
-                Connection {
-                    nettype: crate::Nettype::In,
-                    addrtype: crate::Addrtype::Ip4,
+                lines::Connection {
+                    nettype: lines::common::Nettype::In,
+                    addrtype: lines::common::Addrtype::Ip4,
                     connection_address: "10.47.16.5".parse::<IpAddr>().unwrap().into(),
                 },
-                Connection {
-                    nettype: crate::Nettype::In,
-                    addrtype: crate::Addrtype::Ip4,
+                lines::Connection {
+                    nettype: lines::common::Nettype::In,
+                    addrtype: lines::common::Addrtype::Ip4,
                     connection_address: "10.47.16.6".parse::<IpAddr>().unwrap().into(),
                 },
             ],
             bandwidths: vec![
-                crate::Bandwidth {
-                    bwtype: crate::Bwtype::Ct,
+                lines::Bandwidth {
+                    bwtype: lines::bandwidth::Bwtype::Ct,
                     bandwidth: 1000,
                 },
-                crate::Bandwidth {
-                    bwtype: crate::Bwtype::As,
+                lines::Bandwidth {
+                    bwtype: lines::bandwidth::Bwtype::As,
                     bandwidth: 551,
                 },
             ],
-            key: Some(Key {
-                method: crate::KeyMethod::Prompt,
+            key: Some(lines::Key {
+                method: lines::key::KeyMethod::Prompt,
                 encryption_key: Default::default(),
             }),
             attributes: vec![
-                crate::Attribute::Rtpmap(crate::Rtpmap {
+                lines::Attribute::Rtpmap(lines::attribute::Rtpmap {
                     payload_type: 99,
                     encoding_name: "h232-199".into(),
                     clock_rate: 90000,
                     encoding_params: None,
                 }),
-                crate::Attribute::Rtpmap(crate::Rtpmap {
+                lines::Attribute::Rtpmap(lines::attribute::Rtpmap {
                     payload_type: 90,
                     encoding_name: "h263-1998".into(),
                     clock_rate: 90000,
@@ -281,41 +284,43 @@ mod tests {
         assert_eq!(
             SessionDescription::try_from(tokenizer),
             Ok(SessionDescription {
-                version: Version::V0,
-                origin: Origin {
+                version: lines::Version::V0,
+                origin: lines::Origin {
                     username: "Alice".into(),
                     sess_id: "2890844526".into(),
                     sess_version: "2890842807".into(),
-                    nettype: Nettype::In,
-                    addrtype: Addrtype::Ip4,
+                    nettype: lines::common::Nettype::In,
+                    addrtype: lines::common::Addrtype::Ip4,
                     unicast_address: IpAddr::V4(Ipv4Addr::new(10, 47, 16, 5)),
                 },
-                session_name: SessionName::new("-".into()),
-                session_info: Some(SessionInformation::new(
+                session_name: lines::SessionName::new("-".into()),
+                session_info: Some(lines::SessionInformation::new(
                     "A Seminar on the session description protocol".into()
                 )),
-                uri: Some(Uri::new("http://www.example.com/seminars/sdp.pdf".into())),
-                emails: vec![Email::new("alice@example.com (Alice Smith)".into())],
-                phones: vec![Phone::new("+1 911-345-1160".into())],
-                connection: Some(Connection {
-                    nettype: Nettype::In,
-                    addrtype: Addrtype::Ip4,
-                    connection_address: ConnectionAddress {
+                uri: Some(lines::Uri::new(
+                    "http://www.example.com/seminars/sdp.pdf".into()
+                )),
+                emails: vec![lines::Email::new("alice@example.com (Alice Smith)".into())],
+                phones: vec![lines::Phone::new("+1 911-345-1160".into())],
+                connection: Some(lines::Connection {
+                    nettype: lines::common::Nettype::In,
+                    addrtype: lines::common::Addrtype::Ip4,
+                    connection_address: lines::connection::ConnectionAddress {
                         base: "10.47.16.5".parse().unwrap(),
                         ttl: None,
                         numaddr: None
                     }
                 }),
-                bandwidths: vec![Bandwidth {
-                    bwtype: Bwtype::Ct,
+                bandwidths: vec![lines::Bandwidth {
+                    bwtype: lines::bandwidth::Bwtype::Ct,
                     bandwidth: 1024,
                 }],
                 times: expected_times,
-                key: Some(Key {
-                    method: KeyMethod::Clear,
+                key: Some(lines::Key {
+                    method: lines::key::KeyMethod::Clear,
                     encryption_key: "password".into()
                 }),
-                attributes: vec![Attribute::Recvonly],
+                attributes: vec![lines::Attribute::Recvonly],
                 media_descriptions: vec![expected_media_description]
             })
         );
@@ -325,7 +330,7 @@ mod tests {
     fn from_tokenizer2() {
         let tokenizer = Tokenizer {
             version: "0".into(),
-            origin: origin::Tokenizer {
+            origin: crate::tokenizers::origin::Tokenizer {
                 username: "Alice",
                 sess_id: "2890844526",
                 sess_version: "2890842807",
@@ -340,22 +345,22 @@ mod tests {
             phones: vec![],
             connection: None,
             bandwidths: vec![],
-            times: vec1![time::Tokenizer {
+            times: vec1![crate::tokenizers::time::Tokenizer {
                 active: ("2854678930", "2854679000").into(),
                 repeat: vec![],
                 zone: None
             }],
             key: None,
             attributes: vec![],
-            media_descriptions: vec![media_description::Tokenizer {
-                media: media::Tokenizer {
+            media_descriptions: vec![crate::media_description::Tokenizer {
+                media: crate::tokenizers::media::Tokenizer {
                     media: "audio",
                     port: "49170".into(),
                     proto: "RTP/AVP",
                     fmt: "0",
                 },
                 info: None,
-                connections: vec![connection::Tokenizer {
+                connections: vec![crate::tokenizers::connection::Tokenizer {
                     nettype: "IN",
                     addrtype: "IP4",
                     connection_address: "10.47.16.6".into(),
@@ -366,8 +371,8 @@ mod tests {
             }],
         };
 
-        let expected_times = vec1![Time {
-            active: crate::Active {
+        let expected_times = vec1![crate::Time {
+            active: lines::Active {
                 start: 2854678930,
                 stop: 2854679000,
             },
@@ -375,22 +380,22 @@ mod tests {
             zone: None
         }];
 
-        let expected_media_description = MediaDescription {
-            media: Media {
-                media: crate::MediaType::Audio,
+        let expected_media_description = crate::MediaDescription {
+            media: lines::Media {
+                media: lines::media::MediaType::Audio,
                 port: 49170,
                 num_of_ports: None,
-                proto: crate::ProtoType::RtpAvp,
+                proto: lines::media::ProtoType::RtpAvp,
                 fmt: "0".into(),
             },
             info: None,
-            connections: vec![Connection {
-                nettype: crate::Nettype::In,
-                addrtype: crate::Addrtype::Ip4,
+            connections: vec![lines::Connection {
+                nettype: lines::common::Nettype::In,
+                addrtype: lines::common::Addrtype::Ip4,
                 connection_address: "10.47.16.6".parse::<IpAddr>().unwrap().into(),
             }],
-            bandwidths: vec![crate::Bandwidth {
-                bwtype: crate::Bwtype::As,
+            bandwidths: vec![lines::Bandwidth {
+                bwtype: lines::bandwidth::Bwtype::As,
                 bandwidth: 551,
             }],
             key: None,
@@ -400,16 +405,16 @@ mod tests {
         assert_eq!(
             SessionDescription::try_from(tokenizer),
             Ok(SessionDescription {
-                version: Version::V0,
-                origin: Origin {
+                version: lines::Version::V0,
+                origin: lines::Origin {
                     username: "Alice".into(),
                     sess_id: "2890844526".into(),
                     sess_version: "2890842807".into(),
-                    nettype: Nettype::In,
-                    addrtype: Addrtype::Ip4,
+                    nettype: lines::common::Nettype::In,
+                    addrtype: lines::common::Addrtype::Ip4,
                     unicast_address: IpAddr::V4(Ipv4Addr::new(10, 47, 16, 5)),
                 },
-                session_name: SessionName::new("-".into()),
+                session_name: lines::SessionName::new("-".into()),
                 session_info: None,
                 uri: None,
                 emails: vec![],
@@ -428,7 +433,7 @@ mod tests {
     fn from_tokenizer3() {
         let tokenizer = Tokenizer {
             version: "0".into(),
-            origin: origin::Tokenizer {
+            origin: crate::tokenizers::origin::Tokenizer {
                 username: "Alice",
                 sess_id: "2890844526",
                 sess_version: "2890842807",
@@ -443,7 +448,7 @@ mod tests {
             phones: vec![],
             connection: None,
             bandwidths: vec![],
-            times: vec1![time::Tokenizer {
+            times: vec1![crate::tokenizers::time::Tokenizer {
                 active: ("2854678930", "2854679000").into(),
                 repeat: vec![],
                 zone: None
@@ -453,8 +458,8 @@ mod tests {
             media_descriptions: vec![],
         };
 
-        let expected_times = vec1![Time {
-            active: crate::Active {
+        let expected_times = vec1![crate::Time {
+            active: lines::Active {
                 start: 2854678930,
                 stop: 2854679000,
             },
@@ -465,16 +470,16 @@ mod tests {
         assert_eq!(
             SessionDescription::try_from(tokenizer),
             Ok(SessionDescription {
-                version: Version::V0,
-                origin: Origin {
+                version: lines::Version::V0,
+                origin: lines::Origin {
                     username: "Alice".into(),
                     sess_id: "2890844526".into(),
                     sess_version: "2890842807".into(),
-                    nettype: Nettype::In,
-                    addrtype: Addrtype::Ip4,
+                    nettype: lines::common::Nettype::In,
+                    addrtype: lines::common::Addrtype::Ip4,
                     unicast_address: IpAddr::V4(Ipv4Addr::new(10, 47, 16, 5)),
                 },
-                session_name: SessionName::new("-".into()),
+                session_name: lines::SessionName::new("-".into()),
                 session_info: None,
                 uri: None,
                 emails: vec![],
