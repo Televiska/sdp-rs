@@ -13,9 +13,25 @@ impl<'a> TryFrom<Tokenizer<'a>> for ConnectionAddress {
 
     fn try_from(tokenizer: Tokenizer<'a>) -> Result<Self, Self::Error> {
         Ok(Self {
-            base: tokenizer.base.parse()?,
-            ttl: tokenizer.ttl.map(|ttl| ttl.parse()).transpose()?,
-            numaddr: tokenizer.numaddr.map(|ttl| ttl.parse()).transpose()?,
+            base: tokenizer.base.parse().map_err(|e| {
+                Self::Error::parser_with_error("connection address base", tokenizer.base, e)
+            })?,
+            ttl: tokenizer
+                .ttl
+                .map(|ttl| {
+                    ttl.parse().map_err(|e| {
+                        Self::Error::parser_with_error("connection address ttl", ttl, e)
+                    })
+                })
+                .transpose()?,
+            numaddr: tokenizer
+                .numaddr
+                .map(|numaddr| {
+                    numaddr.parse().map_err(|e| {
+                        Self::Error::parser_with_error("connection number of addresses", numaddr, e)
+                    })
+                })
+                .transpose()?,
         })
     }
 }

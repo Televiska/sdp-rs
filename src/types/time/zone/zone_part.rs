@@ -14,8 +14,13 @@ impl<'a> TryFrom<Tokenizer<'a>> for ZonePart {
 
     fn try_from(tokenizer: Tokenizer<'a>) -> Result<Self, Self::Error> {
         Ok(Self {
-            adjustment_time: tokenizer.adjustment.parse()?,
-            offset: tokenizer.offset.try_into()?,
+            adjustment_time: tokenizer.adjustment.parse().map_err(|e| {
+                Self::Error::parser_with_error("zone adjustment time", tokenizer.adjustment, e)
+            })?,
+            offset: tokenizer
+                .offset
+                .try_into()
+                .map_err(|e| Self::Error::parser_with_error("zone offset", tokenizer.offset, e))?,
         })
     }
 }

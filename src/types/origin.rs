@@ -26,7 +26,9 @@ impl<'a> TryFrom<Tokenizer<'a>> for Origin {
             sess_version: tokenizer.sess_version.into(),
             nettype: tokenizer.nettype.into(),
             addrtype: tokenizer.addrtype.into(),
-            unicast_address: tokenizer.unicast_address.parse()?,
+            unicast_address: tokenizer.unicast_address.parse().map_err(|e| {
+                Self::Error::parser_with_error("origin ip address", tokenizer.unicast_address, e)
+            })?,
         })
     }
 }

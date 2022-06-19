@@ -23,56 +23,69 @@ impl<'a> Tokenizer<'a> {
     pub fn tokenize(part: &'a str) -> TResult<'a, Self> {
         use nom::multi::many1;
 
-        let (rem, version) = value::Tokenizer::tokenize(part)?;
-        let (rem, origin) = origin::Tokenizer::tokenize(rem)?;
-        let (rem, session_name) = value::Tokenizer::tokenize(rem)?;
+        let (rem, version) = value::Tokenizer::tokenize(part)
+            .map_err(|e| TokenizerError::part_with_error("version", part, e).into())?;
+        let (rem, origin) = origin::Tokenizer::tokenize(rem)
+            .map_err(|e| TokenizerError::part_with_error("origin", rem, e).into())?;
+        let (rem, session_name) = value::Tokenizer::tokenize(rem)
+            .map_err(|e| TokenizerError::part_with_error("session name", rem, e).into())?;
         let (rem, session_info) = match rem.starts_with("i=") {
             true => {
-                let (rem, info) = value::Tokenizer::tokenize(rem)?;
+                let (rem, info) = value::Tokenizer::tokenize(rem)
+                    .map_err(|e| TokenizerError::part_with_error("session info", rem, e).into())?;
                 (rem, Some(info))
             }
             false => (rem, None),
         };
         let (rem, uri) = match rem.starts_with("u=") {
             true => {
-                let (rem, uri) = value::Tokenizer::tokenize(rem)?;
+                let (rem, uri) = value::Tokenizer::tokenize(rem)
+                    .map_err(|e| TokenizerError::part_with_error("URI", rem, e).into())?;
                 (rem, Some(uri))
             }
             false => (rem, None),
         };
         let (rem, emails) = match rem.starts_with("e=") {
-            true => many1(value::Tokenizer::tokenize)(rem)?,
+            true => many1(value::Tokenizer::tokenize)(rem)
+                .map_err(|e| TokenizerError::part_with_error("email", rem, e).into())?,
             false => (rem, vec![]),
         };
         let (rem, phones) = match rem.starts_with("p=") {
-            true => many1(value::Tokenizer::tokenize)(rem)?,
+            true => many1(value::Tokenizer::tokenize)(rem)
+                .map_err(|e| TokenizerError::part_with_error("phone", rem, e).into())?,
             false => (rem, vec![]),
         };
         let (rem, connection) = match rem.starts_with("c=") {
             true => {
-                let (rem, phone) = connection::Tokenizer::tokenize(rem)?;
+                let (rem, phone) = connection::Tokenizer::tokenize(rem)
+                    .map_err(|e| TokenizerError::part_with_error("connection", rem, e).into())?;
                 (rem, Some(phone))
             }
             false => (rem, None),
         };
         let (rem, bandwidths) = match rem.starts_with("b=") {
-            true => many1(key_value::Tokenizer::tokenize)(rem)?,
+            true => many1(key_value::Tokenizer::tokenize)(rem)
+                .map_err(|e| TokenizerError::part_with_error("bandwidth", rem, e).into())?,
             false => (rem, vec![]),
         };
         let (rem, times) = many1(time::Tokenizer::tokenize)(rem)?;
         let (rem, key) = match rem.starts_with("k=") {
             true => {
-                let (rem, key) = key_optvalue::Tokenizer::tokenize(rem)?;
+                let (rem, key) = key_optvalue::Tokenizer::tokenize(rem)
+                    .map_err(|e| TokenizerError::part_with_error("key", rem, e).into())?;
                 (rem, Some(key))
             }
             false => (rem, None),
         };
         let (rem, attributes) = match rem.starts_with("a=") {
-            true => many1(key_optvalue::Tokenizer::tokenize)(rem)?,
+            true => many1(key_optvalue::Tokenizer::tokenize)(rem)
+                .map_err(|e| TokenizerError::part_with_error("attribute(s)", rem, e).into())?,
             false => (rem, vec![]),
         };
         let (rem, media_descriptions) = match rem.starts_with("m=") {
-            true => many1(media_description::Tokenizer::tokenize)(rem)?,
+            true => many1(media_description::Tokenizer::tokenize)(rem).map_err(|e| {
+                TokenizerError::part_with_error("media description(s)", rem, e).into()
+            })?,
             false => (rem, vec![]),
         };
 
@@ -89,7 +102,7 @@ impl<'a> Tokenizer<'a> {
                 connection,
                 bandwidths,
                 times: times.try_into().map_err(|_| {
-                    nom::Err::Error(TokenizerError::from(("time", "missing line(s)")))
+                    nom::Err::Error(TokenizerError::part_with_input("time", "missing line(s)"))
                 })?,
                 key,
                 attributes,

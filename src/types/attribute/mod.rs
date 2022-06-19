@@ -8,7 +8,7 @@ pub use fmtp::Fmtp;
 pub use orientation::Orientation;
 pub use rtpmap::Rtpmap;
 
-pub use crate::tokenizers::key_optvalue::Tokenizer;
+pub use crate::{tokenizers::key_optvalue::Tokenizer, TokenizerError};
 use std::convert::TryFrom;
 
 #[derive(Debug, PartialEq, PartialOrd, Clone)]
@@ -34,9 +34,11 @@ pub enum Attribute {
 }
 
 //TODO: add warning log on errors behind a feature flag
-impl<'a> From<Tokenizer<'a, 'a'>> for Attribute {
-    fn from(tokenizer: Tokenizer<'a, 'a'>) -> Self {
-        match (tokenizer.key, tokenizer.value) {
+impl<'a> TryFrom<Tokenizer<'a, 'a'>> for Attribute {
+    type Error = crate::Error;
+
+    fn try_from(tokenizer: Tokenizer<'a, 'a'>) -> Result<Self, Self::Error> {
+        Ok(match (tokenizer.key, tokenizer.value) {
             (key, Some(value)) if key.eq("cat") => Self::Cat(value.into()),
             (key, Some(value)) if key.eq("keywds") => Self::Keywds(value.into()),
             (key, Some(value)) if key.eq("tool") => Self::Tool(value.into()),
@@ -48,9 +50,19 @@ impl<'a> From<Tokenizer<'a, 'a'>> for Attribute {
                 Ok(value) => Self::Maxptime(value),
                 Err(_) => Self::Other(key.into(), Some(value.into())),
             },
-            (key, Some(value)) if key.eq("rtpmap") => match Rtpmap::try_from(value) {
-                Ok(rtpmap) => Self::Rtpmap(rtpmap),
-                Err(_) => Self::Other(key.into(), Some(value.into())),
+            //TODO: add errors
+            (key, value) if key.eq("rtpmap") => match value {
+                Some(value) => Self::Rtpmap(
+                    Rtpmap::try_from(value)
+                        .map_err(|e| crate::Error::parser_with_error("rtpmap", value, e))?,
+                ),
+                None => {
+                    return Err(crate::Error::parser_with_error(
+                        "rtpmap",
+                        "",
+                        "missing value",
+                    ))
+                }
             },
             (key, None) if key.eq("recvonly") => Self::Recvonly,
             (key, None) if key.eq("sendrecv") => Self::Sendrecv,
@@ -76,7 +88,7 @@ impl<'a> From<Tokenizer<'a, 'a'>> for Attribute {
                 Err(_) => Self::Other(key.into(), Some(value.into())),
             },
             (key, value) => Self::Other(key.into(), value.map(Into::into)),
-        }
+        })
     }
 }
 
@@ -115,7 +127,7 @@ mod tests {
         let tokenizer: Tokenizer<'a'> = ("key", Some("something")).into();
 
         assert_eq!(
-            Attribute::from(tokenizer),
+            Attribute::try_from(tokenizer).unwrap(),
             Attribute::Other("key".into(), Some("something".into()))
         );
     }
@@ -125,7 +137,7 @@ mod tests {
         let tokenizer: Tokenizer<'a'> = ("orient", None).into();
 
         assert_eq!(
-            Attribute::from(tokenizer),
+            Attribute::try_from(tokenizer).unwrap(),
             Attribute::Other("orient".into(), None)
         );
     }
@@ -135,7 +147,7 @@ mod tests {
         let tokenizer: Tokenizer<'a'> = ("orient", Some("Portrait")).into();
 
         assert_eq!(
-            Attribute::from(tokenizer),
+            Attribute::try_from(tokenizer).unwrap(),
             Attribute::Other("orient".into(), Some("Portrait".into()))
         );
     }
@@ -145,7 +157,7 @@ mod tests {
         let tokenizer: Tokenizer<'a'> = ("orient", Some("portrait")).into();
 
         assert_eq!(
-            Attribute::from(tokenizer),
+            Attribute::try_from(tokenizer).unwrap(),
             Attribute::Orient(Orientation::Portrait)
         );
     }

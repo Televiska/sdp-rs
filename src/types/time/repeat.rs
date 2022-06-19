@@ -17,8 +17,12 @@ impl<'a> TryFrom<Tokenizer<'a>> for Repeat {
 
     fn try_from(tokenizer: Tokenizer<'a>) -> Result<Self, Self::Error> {
         Ok(Self {
-            interval: tokenizer.interval.try_into()?,
-            duration: tokenizer.duration.try_into()?,
+            interval: tokenizer.interval.try_into().map_err(|e| {
+                Self::Error::parser_with_error("repeat interval", tokenizer.interval, e)
+            })?,
+            duration: tokenizer.duration.try_into().map_err(|e| {
+                Self::Error::parser_with_error("repeat duration", tokenizer.duration, e)
+            })?,
             offsets: tokenizer
                 .offsets
                 .into_iter()

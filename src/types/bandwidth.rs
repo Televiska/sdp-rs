@@ -15,7 +15,9 @@ impl<'a> TryFrom<Tokenizer<'a, 'b'>> for Bandwidth {
     fn try_from(tokenizer: Tokenizer<'a, 'b'>) -> Result<Self, Self::Error> {
         Ok(Self {
             bwtype: tokenizer.key.into(),
-            bandwidth: tokenizer.value.parse()?,
+            bandwidth: tokenizer.value.parse().map_err(|e| {
+                Self::Error::parser_with_error("bandwidth value", tokenizer.value, e)
+            })?,
         })
     }
 }

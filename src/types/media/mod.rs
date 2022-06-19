@@ -23,11 +23,16 @@ impl<'a> TryFrom<Tokenizer<'a>> for Media {
     fn try_from(tokenizer: Tokenizer<'a>) -> Result<Self, Self::Error> {
         Ok(Self {
             media: tokenizer.media.into(),
-            port: tokenizer.port.port.parse()?,
+            port: tokenizer.port.port.parse().map_err(|e| {
+                Self::Error::parser_with_error("media port", tokenizer.port.port, e)
+            })?,
             num_of_ports: tokenizer
                 .port
                 .num_of_ports
-                .map(|num| num.parse())
+                .map(|num| {
+                    num.parse()
+                        .map_err(|e| Self::Error::parser_with_error("media num of ports", num, e))
+                })
                 .transpose()?,
             proto: tokenizer.proto.into(),
             fmt: tokenizer.fmt.into(),

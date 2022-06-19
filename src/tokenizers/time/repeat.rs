@@ -12,9 +12,9 @@ impl<'a> Tokenizer<'a> {
         use crate::parser_utils::*;
         use nom::{bytes::complete::tag, multi::many0, sequence::preceded};
 
-        let (rem, interval) = preceded(tag("r="), until_space)(part)?;
-        let (rem, duration) = until_space(rem)?;
-        let (rem, offsets) = until_newline(rem)?;
+        let (rem, line) = preceded(tag("r="), until_newline)(part)?;
+        let (line_rem, interval) = until_space(line)?;
+        let (offsets, duration) = until_space(line_rem)?;
         let (offset, mut offsets) = many0(until_space)(offsets)?;
 
         offsets.push(offset);
