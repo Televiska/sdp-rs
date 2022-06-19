@@ -1,6 +1,6 @@
 [package]
 name = "sdp-rs"
-version = "0.0.1"
+version = "0.2.1"
 authors = ["Filippos Vasilakis <vasilakisfil@gmail.com>"]
 edition = "2018"
 description = "SDP Rust library, parser & generator of the Session Description Protocol"

@@ -4,7 +4,12 @@ pub use tokenizer_error::TokenizerError;
 
 use std::{error::Error as StdError, fmt};
 
-/// The `Error` enum indicates that something went wrong
+/// The `Error` enum indicates that something went wrong.
+/// * `ParseError` signifies that tokenizing the input went through, but converting a token to an
+/// actual type failed.
+/// * `TokenizeError` signified that tokenizing the input failed.
+/// * Incomplete is not used, it is meant for a later release where support of streaming input will
+/// be added (for tokio codecs).
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub enum Error {
     ParseError(String),
