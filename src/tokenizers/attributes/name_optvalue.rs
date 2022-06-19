@@ -12,9 +12,10 @@ impl<'a> Tokenizer<'a> {
         use nom::{branch::alt, combinator::rest};
 
         if part.is_empty() {
-            return Err(nom::Err::Error(TokenizerError::from(
-                "nothing more to tokenize",
-            )));
+            return Err(nom::Err::Error(TokenizerError {
+                context: "break; nothing more to tokenize".into(),
+                nom_kind: None,
+            }));
         }
 
         let (rem, name_with_value) = alt((until_stopbreak_of(";"), rest))(part)?;

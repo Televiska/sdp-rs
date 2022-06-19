@@ -21,11 +21,22 @@ impl Error {
         Self::TokenizeError(format!("failed to tokenize {}: {}", tuple.0, tuple.1))
     }
 
-    pub fn parser<T>(element: &'static str, part: T) -> Self
+    pub fn parser<I>(element: &'static str, input: I) -> Self
     where
-        T: std::fmt::Display,
+        I: std::fmt::Display,
     {
-        Self::TokenizeError(format!("failed to parse {}: {}", element, part))
+        Self::ParseError(format!("failed to parse {}: {}", element, input))
+    }
+
+    pub fn parser_with_error<I, E>(element: &'static str, input: I, error: E) -> Self
+    where
+        I: std::fmt::Display,
+        E: std::fmt::Display,
+    {
+        Self::ParseError(format!(
+            "failed to parse {} ( {} ): {}",
+            element, error, input
+        ))
     }
 }
 
@@ -48,8 +59,8 @@ impl From<nom::Err<TokenizerError>> for Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Self::TokenizeError(inner) => write!(f, "Tokenizer error: {}", inner),
-            Self::ParseError(inner) => write!(f, "sdp error: could not parse part: {}", inner),
+            Self::TokenizeError(inner) => write!(f, "tokenizer error: {}", inner),
+            Self::ParseError(inner) => write!(f, "could not parse part: {}", inner),
             Self::Incomplete => write!(f, "sdp error: incomplete input"),
         }
     }

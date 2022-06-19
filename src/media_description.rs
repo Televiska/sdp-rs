@@ -34,8 +34,8 @@ impl<'a> TryFrom<Tokenizer<'a>> for MediaDescription {
             attributes: tokenizer
                 .attributes
                 .into_iter()
-                .map(Into::into)
-                .collect::<Vec<_>>(),
+                .map(TryInto::try_into)
+                .collect::<Result<Vec<_>, _>>()?,
         })
     }
 }

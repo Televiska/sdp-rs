@@ -11,8 +11,8 @@ impl<'a, const C: char> Tokenizer<'a, C> {
         use crate::parser_utils::*;
         use nom::{bytes::complete::tag, sequence::preceded};
 
-        let (rem, key) = preceded(tag(Self::prefix().as_str()), until_stopbreak_of(":"))(part)?;
-        let (rem, value) = until_newline(rem)?;
+        let (rem, key_with_value) = preceded(tag(Self::prefix().as_str()), until_newline)(part)?;
+        let (value, key) = until_stopbreak_of(":")(key_with_value)?;
 
         Ok((rem, (key, value).into()))
     }

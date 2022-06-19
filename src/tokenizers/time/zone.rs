@@ -9,10 +9,9 @@ pub struct Tokenizer<'a> {
 impl<'a> Tokenizer<'a> {
     pub fn tokenize(part: &'a str) -> TResult<'a, Self> {
         use crate::parser_utils::*;
-        use nom::{bytes::complete::tag, multi::many1};
+        use nom::{bytes::complete::tag, multi::many1, sequence::preceded};
 
-        let (rem, _) = tag("z=")(part)?;
-        let (rem, line) = until_newline(rem)?;
+        let (rem, line) = preceded(tag("z="), until_newline)(part)?;
         let (_, parts) = many1(zone_part::Tokenizer::tokenize)(line)?;
 
         Ok((rem, Self { parts }))

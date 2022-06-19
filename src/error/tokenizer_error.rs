@@ -6,23 +6,32 @@ pub struct TokenizerError {
     pub nom_kind: Option<nom::error::ErrorKind>,
 }
 
-impl<'a, S, T> From<(S, T)> for TokenizerError
-where
-    S: std::fmt::Display,
-    T: std::fmt::Display,
-{
-    fn from(from: (S, T)) -> Self {
+impl TokenizerError {
+    pub fn part_with_error<I>(
+        element: &'static str,
+        input: I,
+        error: nom::Err<TokenizerError>,
+    ) -> Self
+    where
+        I: std::fmt::Display,
+    {
         Self {
-            context: format!("failed to tokenize {}: {}", from.0, from.1),
+            context: format!(
+                "failed to tokenize {} ( {} ): {}",
+                element,
+                nom_inner(error),
+                input
+            ),
             nom_kind: None,
         }
     }
-}
 
-impl From<&'static str> for TokenizerError {
-    fn from(from: &'static str) -> Self {
+    pub fn part_with_input<I>(element: &'static str, input: I) -> Self
+    where
+        I: std::fmt::Display,
+    {
         Self {
-            context: from.into(),
+            context: format!("failed to tokenize {}: {}", element, input),
             nom_kind: None,
         }
     }
@@ -54,17 +63,25 @@ impl StdError for TokenizerError {}
 impl<T: std::fmt::Display> nom::error::ParseError<T> for TokenizerError {
     fn from_error_kind(input: T, kind: nom::error::ErrorKind) -> Self {
         Self {
-            context: format!("could not tokenize ({:?}): {}", kind, input),
+            context: format!(
+                "could not tokenize or was expecting something else before: {}",
+                input
+            ),
             nom_kind: Some(kind),
         }
     }
-    fn append(input: T, kind: nom::error::ErrorKind, other: Self) -> Self {
+    fn append(input: T, kind: nom::error::ErrorKind, _: Self) -> Self {
         Self {
-            context: format!(
-                "{}. Also, could not tokenize ({:?}): {}",
-                other, kind, input,
-            ),
-            nom_kind: other.nom_kind,
+            context: format!("could not tokenize: {}", input),
+            nom_kind: Some(kind),
         }
+    }
+}
+
+fn nom_inner(e: nom::Err<TokenizerError>) -> String {
+    match e {
+        nom::Err::Incomplete(_) => "parsing requires more data".into(),
+        nom::Err::Failure(c) => c.context,
+        nom::Err::Error(c) => c.context,
     }
 }

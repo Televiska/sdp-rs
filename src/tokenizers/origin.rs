@@ -15,12 +15,13 @@ impl<'a> Tokenizer<'a> {
         use crate::parser_utils::*;
         use nom::{bytes::complete::tag, sequence::preceded};
 
-        let (rem, username) = preceded(tag("o="), until_space)(part)?;
-        let (rem, sess_id) = until_space(rem)?;
-        let (rem, sess_version) = until_space(rem)?;
-        let (rem, nettype) = until_space(rem)?;
-        let (rem, addrtype) = until_space(rem)?;
-        let (rem, unicast_address) = until_newline(rem)?;
+        let (rem, line) = preceded(tag("o="), until_newline)(part)?;
+
+        let (line_rem, username) = until_space(line)?;
+        let (line_rem, sess_id) = until_space(line_rem)?;
+        let (line_rem, sess_version) = until_space(line_rem)?;
+        let (line_rem, nettype) = until_space(line_rem)?;
+        let (unicast_address, addrtype) = until_space(line_rem)?;
 
         Ok((
             rem,

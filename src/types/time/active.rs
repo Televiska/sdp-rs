@@ -14,8 +14,14 @@ impl<'a> TryFrom<Tokenizer<'a>> for Active {
 
     fn try_from(tokenizer: Tokenizer<'a>) -> Result<Self, Self::Error> {
         Ok(Self {
-            start: tokenizer.start.parse()?,
-            stop: tokenizer.stop.parse()?,
+            start: tokenizer
+                .start
+                .parse()
+                .map_err(|e| Self::Error::parser_with_error("time start", tokenizer.start, e))?,
+            stop: tokenizer
+                .stop
+                .parse()
+                .map_err(|e| Self::Error::parser_with_error("time stop", tokenizer.stop, e))?,
         })
     }
 }

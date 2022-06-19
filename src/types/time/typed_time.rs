@@ -34,11 +34,31 @@ impl<'a> TryFrom<&'a str> for TypedTime {
 
     fn try_from(part: &'a str) -> Result<Self, Self::Error> {
         let typed_time = match part.chars().last() {
-            Some('s') => Self::Seconds(Duration::seconds(part[0..part.len() - 1].parse::<i64>()?)),
-            Some('m') => Self::Minutes(Duration::minutes(part[0..part.len() - 1].parse::<i64>()?)),
-            Some('h') => Self::Hours(Duration::hours(part[0..part.len() - 1].parse::<i64>()?)),
-            Some('d') => Self::Days(Duration::days(part[0..part.len() - 1].parse::<i64>()?)),
-            _ => Self::None(Duration::seconds(part.parse::<i64>()?)),
+            Some('s') => Self::Seconds(Duration::seconds(
+                part[0..part.len() - 1]
+                    .parse::<i64>()
+                    .map_err(|e| Self::Error::parser_with_error("typed time", part, e))?,
+            )),
+            Some('m') => Self::Minutes(Duration::minutes(
+                part[0..part.len() - 1]
+                    .parse::<i64>()
+                    .map_err(|e| Self::Error::parser_with_error("typed time", part, e))?,
+            )),
+            Some('h') => Self::Hours(Duration::hours(
+                part[0..part.len() - 1]
+                    .parse::<i64>()
+                    .map_err(|e| Self::Error::parser_with_error("typed time", part, e))?,
+            )),
+            Some('d') => Self::Days(Duration::days(
+                part[0..part.len() - 1]
+                    .parse::<i64>()
+                    .map_err(|e| Self::Error::parser_with_error("typed time", part, e))?,
+            )),
+            _ => {
+                Self::None(Duration::seconds(part.parse::<i64>().map_err(|e| {
+                    Self::Error::parser_with_error("typed time", part, e)
+                })?))
+            }
         };
 
         Ok(typed_time)

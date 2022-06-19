@@ -24,7 +24,10 @@ impl<'a> Tokenizer<'a> {
             }
             false => (rem, None),
         };
+
+        //TODO: add loop for
         let (rem, connections) = match rem.starts_with("c=") {
+            //TODO: convert many1 to for loops
             true => many1(connection::Tokenizer::tokenize)(rem)?,
             false => (rem, vec![]),
         };

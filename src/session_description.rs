@@ -83,8 +83,8 @@ impl<'a> TryFrom<Tokenizer<'a>> for SessionDescription {
             attributes: tokenizer
                 .attributes
                 .into_iter()
-                .map(Into::into)
-                .collect::<Vec<_>>(),
+                .map(TryInto::try_into)
+                .collect::<Result<Vec<_>, _>>()?,
             media_descriptions: tokenizer
                 .media_descriptions
                 .into_iter()
@@ -548,5 +548,37 @@ mod tests {
 
         let parsed_sdp = SessionDescription::try_from(Tokenizer::tokenize(sdp).unwrap().1).unwrap();
         assert_eq!(parsed_sdp.to_string(), sdp);
+    }
+
+    #[test]
+    fn errors1() {
+        let sdp = concat!(
+            "v=0\r\n",
+            "o=Alice 2890844526 2890842807 IN IP4 10.47.16.5\r\n",
+            "s=-\r\n",
+            "i=A Seminar on the session description protocol\r\n",
+            "u=http://www.example.com/seminars/sdp.pdf\r\n",
+            "e=alice@example.com (Alice Smith)\r\n",
+            "p=+1 911-345-1160\r\n",
+            "c=IN IP4 10.47.16\r\n",
+            "b=CT:1024\r\n",
+            "t=2854678930 2854679000\r\n",
+            "r=604800 3600 0 90000\r\n",
+            "z=2882844526 -1h 2898848070 0h\r\n",
+            "k=clear:password\r\n",
+            "a=recvonly\r\n",
+            "m=audio 49170 RTP/AVP 0\r\n",
+            "i=audio media\r\n",
+            "c=IN IP4 10.47.16.5\r\n",
+            "c=IN IP4 10.47.16.6\r\n",
+            "b=CT:1000\r\n",
+            "b=AS:551\r\n",
+            "k=prompt\r\n",
+            "a=rtpmap:99 h232-199/90000\r\n",
+            "a=rtpmap:99 h263-1998/90000\r\n"
+        );
+
+        let parsed_sdp = SessionDescription::try_from(sdp);
+        assert!(parsed_sdp.is_err());
     }
 }

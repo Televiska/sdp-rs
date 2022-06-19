@@ -11,8 +11,8 @@ impl<'a> Tokenizer<'a> {
         use crate::parser_utils::*;
         use nom::{bytes::complete::tag, sequence::preceded};
 
-        let (rem, start) = preceded(tag("t="), until_space)(part)?;
-        let (rem, stop) = until_newline(rem)?;
+        let (rem, line) = preceded(tag("t="), until_newline)(part)?;
+        let (stop, start) = until_space(line)?;
 
         Ok((rem, (start, stop).into()))
     }

@@ -13,10 +13,10 @@ impl<'a> Tokenizer<'a> {
         use crate::parser_utils::*;
         use nom::{bytes::complete::tag, sequence::preceded};
 
-        let (rem, media) = preceded(tag("m="), until_space)(part)?;
-        let (rem, port_with_num_of_ports) = until_space(rem)?;
-        let (rem, proto) = until_space(rem)?;
-        let (rem, fmt) = until_newline(rem)?;
+        let (rem, line) = preceded(tag("m="), until_newline)(part)?;
+        let (line_rem, media) = until_space(line)?;
+        let (line_rem, port_with_num_of_ports) = until_space(line_rem)?;
+        let (fmt, proto) = until_space(line_rem)?;
         let (_, port) = PortTokenizer::tokenize(port_with_num_of_ports)?;
 
         Ok((

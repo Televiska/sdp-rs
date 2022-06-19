@@ -14,10 +14,10 @@ impl<'a> Tokenizer<'a> {
         use crate::parser_utils::*;
         use nom::{bytes::complete::tag, sequence::preceded};
 
-        let (rem, nettype) = preceded(tag("c="), until_space)(part)?;
-        let (rem, addrtype) = until_space(rem)?;
-        let (rem, connection_address) = until_newline(rem)?;
-        let (_, connection_address) = connection_address::Tokenizer::tokenize(connection_address)?;
+        let (rem, values) = preceded(tag("c="), until_newline)(part)?;
+        let (rem_line, nettype) = until_space(values)?;
+        let (rem_line, addrtype) = until_space(rem_line)?;
+        let (_, connection_address) = connection_address::Tokenizer::tokenize(rem_line)?;
 
         Ok((
             rem,
